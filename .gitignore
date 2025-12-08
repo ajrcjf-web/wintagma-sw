@@ -1,0 +1,38 @@
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+.env
+.env.*
+.uv/
+uv.lock
+
+# FastAPI / build
+dist/
+build/
+*.sqlite3
+
+# Alembic cache
+alembic/*.ini~
+alembic/__pycache__/
+
+# --- Android / Gradle ---
+android/.gradle/
+android/build/
+android/android/build/
+android/android/.cxx/
+android/local.properties
+
+# Android Studio
+*.iml
+.idea/
+*.apk
+*.aab
+*.log
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Tema principal de la app Wintagma -->
+    <style name="Theme.Wintagma" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Personalización mínima -->
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+</resources>
