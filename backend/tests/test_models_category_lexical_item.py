@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.inspection import inspect as sa_inspect
 
 from app.models.category import Category

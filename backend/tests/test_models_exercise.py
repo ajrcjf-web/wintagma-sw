@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.inspection import inspect as sa_inspect
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql.sqltypes import String as SAString, Boolean as SABoolean
