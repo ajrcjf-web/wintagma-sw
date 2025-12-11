@@ -5,4 +5,5 @@ import com.wintagma.android.core.model.Category
 data class CategorySelectionUiState(
     val isLoading: Boolean = false,
     val categories: List<Category> = emptyList(),
+    val error: String? = null,          // ← nuevo campo opcional
 )

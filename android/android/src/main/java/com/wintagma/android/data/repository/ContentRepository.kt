@@ -1,4 +1,4 @@
-package com.wintagma.android.data.repository
+package com.wintagma.android.data.repository 
 
 import com.wintagma.android.core.model.Category
 import com.wintagma.android.core.model.LexicalItem

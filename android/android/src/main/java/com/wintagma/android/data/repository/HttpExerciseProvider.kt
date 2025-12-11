@@ -1,54 +1,37 @@
 package com.wintagma.android.data.repository
 
+import com.wintagma.android.domain.model.Exercise
+import com.wintagma.android.domain.model.ExerciseOption
+import com.wintagma.android.domain.model.ExerciseValidationResult
+import com.wintagma.android.feature.exercise.ExerciseProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Repositorio de ejercicios que integra con el backend FastAPI
+ * Implementación real de ExerciseProvider que habla con el backend FastAPI
  * usando los endpoints normativos:
  *
  *  - POST /exercise/generate
  *  - POST /exercise/validate
- *
- * Usa el mismo esquema de errores normativos que ContentRepository:
- * { "error": "<codigo_error>" }
  */
-open class ExerciseRepository(
-    private val baseUrl: String = ContentRepository.DEFAULT_BASE_URL
-) {
+class HttpExerciseProvider(
+    private val baseUrl: String = DEFAULT_BASE_URL
+) : ExerciseProvider {
 
-    /**
-     * Genera un nuevo ejercicio para una categoría dada.
-     *
-     * Request (ET):
-     * {
-     *   "category_id": 1,
-     *   "previous_lexical_item_id": null
-     * }
-     *
-     * Response:
-     * {
-     *   "exercise_id": 1,
-     *   "prompt": "Kassierer",
-     *   "options": [
-     *     { "option_id": 1, "text": "..." },
-     *     ...
-     *   ]
-     * }
-     */
-    @Throws(ApiException::class)
-    open fun generateExercise(
+    // POST /exercise/generate
+    override fun generateExercise(
         categoryId: Int,
         previousLexicalItemId: Int?
-    ): GeneratedExerciseDto {
+    ): Exercise {
         val payload = JSONObject().apply {
             put("category_id", categoryId)
-            // El backend espera explícitamente null si no hay previo
+            // el modelo del backend espera el campo, aunque sea null
             if (previousLexicalItemId != null) {
                 put("previous_lexical_item_id", previousLexicalItemId)
             } else {
@@ -57,45 +40,31 @@ open class ExerciseRepository(
         }
 
         val body = httpPostJson("/exercise/generate", payload)
-        return parseGeneratedExercise(body)
+        return parseExerciseJson(body, categoryId, previousLexicalItemId ?: 0)
     }
 
-    /**
-     * Valida una respuesta del usuario para un ejercicio concreto.
-     *
-     * Request:
-     * {
-     *   "exercise_id": 1,
-     *   "selected_option_id": 5
-     * }
-     *
-     * Response:
-     * {
-     *   "correct": true,
-     *   "correct_option_id": 5,
-     *   "score_delta": 1
-     * }
-     */
-    @Throws(ApiException::class)
-    open fun validateExercise(
+    // POST /exercise/validate
+    override fun validateExercise(
         exerciseId: Int,
         selectedOptionId: Int
-    ): ValidateExerciseResultDto {
+    ): ExerciseValidationResult {
         val payload = JSONObject().apply {
             put("exercise_id", exerciseId)
             put("selected_option_id", selectedOptionId)
         }
 
         val body = httpPostJson("/exercise/validate", payload)
-        return parseValidateExerciseResult(body)
+        return parseExerciseValidationJson(body)
     }
 
     /**
-     * POST JSON minimalista, mismo patrón de manejo de errores
-     * que httpGet() en ContentRepository.
+     * POST JSON bloqueante, mismo patrón de errores que ContentRepository.
      */
     @Throws(ApiException::class)
-    protected open fun httpPostJson(path: String, payload: JSONObject): String {
+    protected open fun httpPostJson(
+        path: String,
+        payload: JSONObject
+    ): String {
         val normalizedBase = baseUrl.trimEnd('/')
         val normalizedPath = if (path.startsWith("/")) path else "/$path"
         val url = URL("$normalizedBase$normalizedPath")
@@ -109,12 +78,10 @@ open class ExerciseRepository(
         }
 
         return try {
-            // Enviar body JSON
-            connection.outputStream.use { os ->
-                OutputStreamWriter(os, Charsets.UTF_8).use { writer ->
-                    writer.write(payload.toString())
-                    writer.flush()
-                }
+            // Enviar body JSON en UTF-8
+            BufferedWriter(OutputStreamWriter(connection.outputStream, Charsets.UTF_8)).use { writer ->
+                writer.write(payload.toString())
+                writer.flush()
             }
 
             val status = connection.responseCode
@@ -143,70 +110,63 @@ open class ExerciseRepository(
     }
 
     companion object {
+        /**
+         * Debe ser consistente con ContentRepository.DEFAULT_BASE_URL.
+         */
+        const val DEFAULT_BASE_URL: String = "http://10.0.2.2:8000"
+
         private const val DEFAULT_CONNECT_TIMEOUT_MS: Int = 5_000
         private const val DEFAULT_READ_TIMEOUT_MS: Int = 5_000
     }
 }
 
 /**
- * DTO interno para representar un ejercicio generado.
- * El ViewModel puede mapearlo a su propio modelo de dominio.
+ * Leer InputStream completo como String en UTF-8.
  */
-data class ExerciseOptionDto(
-    val optionId: Int,
-    val text: String
-)
-
-data class GeneratedExerciseDto(
-    val exerciseId: Int,
-    val prompt: String,
-    val options: List<ExerciseOptionDto>
-)
+private fun java.io.InputStream.bufferedReaderUse(): String =
+    BufferedReader(InputStreamReader(this, Charsets.UTF_8)).use { it.readText() }
 
 /**
- * DTO de resultado de validación de ejercicio.
+ * ---- PARSEO JSON ↔ MODELOS DE DOMINIO ----
  */
-data class ValidateExerciseResultDto(
-    val correct: Boolean,
-    val correctOptionId: Int,
-    val scoreDelta: Int
-)
 
-/**
- * Parsing del JSON de /exercise/generate.
- */
-fun parseGeneratedExercise(body: String): GeneratedExerciseDto {
+// /exercise/generate → Exercise
+fun parseExerciseJson(body: String, categoryId: Int, lexicalItemId: Int): Exercise {
     if (body.isBlank()) {
-        throw IllegalStateException("Empty body for generateExercise")
+        throw IllegalArgumentException("Empty body for exercise")
     }
 
     val root = JSONObject(body)
+
     val exerciseId = root.getInt("exercise_id")
     val prompt = root.getString("prompt")
-
     val optionsArray: JSONArray = root.getJSONArray("options")
-    val options = mutableListOf<ExerciseOptionDto>()
 
+    val options = mutableListOf<ExerciseOption>()
     for (i in 0 until optionsArray.length()) {
         val item = optionsArray.getJSONObject(i)
         val optionId = item.getInt("option_id")
         val text = item.getString("text")
-        options += ExerciseOptionDto(optionId = optionId, text = text)
+
+        options += ExerciseOption(
+            option_id = optionId,
+            text = text
+        )
     }
 
-    return GeneratedExerciseDto(
-        exerciseId = exerciseId,
+    return Exercise(
+        exercise_id = exerciseId,
+        category_id = categoryId,
+        lexical_item_id = lexicalItemId,
         prompt = prompt,
         options = options
     )
 }
 
-/**
- * Parsing del JSON de /exercise/validate.
- */
-fun parseValidateExerciseResult(body: String): ValidateExerciseResultDto {
+// /exercise/validate → ExerciseValidationResult
+fun parseExerciseValidationJson(body: String): ExerciseValidationResult {
     if (body.isBlank()) {
-        throw IllegalStateException("Empty body for validateExercise")
+        throw IllegalArgumentException("Empty body for validation result")
     }
 
     val root = JSONObject(body)
@@ -214,15 +174,9 @@ fun parseValidateExerciseResult(body: String): ValidateExerciseResultDto {
     val correctOptionId = root.getInt("correct_option_id")
     val scoreDelta = root.getInt("score_delta")
 
-    return ValidateExerciseResultDto(
+    return ExerciseValidationResult(
         correct = correct,
-        correctOptionId = correctOptionId,
-        scoreDelta = scoreDelta
+        correct_option_id = correctOptionId,
+        score_delta = scoreDelta
     )
 }
-
-/**
- * Reutilizamos la misma extensión de lectura que en ContentRepository.
- */
-private fun java.io.InputStream.bufferedReaderUse(): String =
-    BufferedReader(InputStreamReader(this, Charsets.UTF_8)).use { it.readText() }
