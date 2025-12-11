@@ -66,7 +66,7 @@ def generate_exercise(payload: GenerateExerciseRequest):
                 content={"error": "internal_error"}
             )
 
-        except Exception as e:
+        except Exception:
             logger.exception("Unhandled exception in ExerciseService")
             return JSONResponse(
                 status_code=500,
