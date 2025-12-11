@@ -2,8 +2,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # Revisiones
-revision = "0003_load_initial_content"
-down_revision = "0002_create_exercise_and_exercise_option"
+revision = "0003"
+down_revision = "0002"
 branch_labels = None
 depends_on = None
 

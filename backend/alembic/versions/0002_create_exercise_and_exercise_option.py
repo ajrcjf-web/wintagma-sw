@@ -4,8 +4,8 @@ from sqlalchemy.dialects import postgresql
 
 
 # Revisiones
-revision = "0002_create_exercise_and_exercise_option"
-down_revision = "0001_create_category_lexical_item"
+revision = "0002"
+down_revision = "0001"
 branch_labels = None
 depends_on = None
 

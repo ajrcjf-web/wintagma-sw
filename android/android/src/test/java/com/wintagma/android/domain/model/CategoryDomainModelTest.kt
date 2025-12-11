@@ -1,5 +1,6 @@
 package com.wintagma.android.domain.model
 
+import com.wintagma.android.core.model.Category
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
