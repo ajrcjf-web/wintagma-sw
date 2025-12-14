@@ -2,6 +2,7 @@
 plugins {
     id("com.android.application") version "8.2.1"
     id("org.jetbrains.kotlin.android") version "1.9.22"
+    kotlin("kapt") version "1.9.22"
 }
 
 android {
@@ -16,6 +17,16 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Room schemas (recomendado al usar exportSchema = true)
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true"
+                )
+            }
+        }
     }
 
     buildTypes {
@@ -74,6 +85,16 @@ dependencies {
 
     // Material Components XML (necesario para Theme.Material3.DayNight.NoActionBar)
     implementation("com.google.android.material:material:1.12.0")
+
+    // --- Room (MP-OFF-01) ---
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    androidTestImplementation("androidx.room:room-testing:$roomVersion")
+
+    // SQLite (for SupportSQLiteConstraintException)
+    androidTestImplementation("androidx.sqlite:sqlite-framework:2.4.0")
 
     // Tests
     testImplementation("junit:junit:4.13.2")
