@@ -1,0 +1,156 @@
+{
+  "version": "v2.1",
+  "categories": [
+    {
+      "id": "cat_01",
+      "name": "Compras en supermercado",
+      "orderIndex": 0
+    },
+    {
+      "id": "cat_02",
+      "name": "Restaurante",
+      "orderIndex": 1
+    },
+    {
+      "id": "cat_03",
+      "name": "Transporte",
+      "orderIndex": 2
+    },
+    {
+      "id": "cat_04",
+      "name": "Vivienda",
+      "orderIndex": 3
+    },
+    {
+      "id": "cat_05",
+      "name": "Trabajo",
+      "orderIndex": 4
+    }
+  ],
+  "lexicalItems": [
+    {
+      "id": "li_01_01",
+      "categoryId": "cat_01",
+      "termDe": "Milch",
+      "termEs": "Leche"
+    },
+    {
+      "id": "li_01_02",
+      "categoryId": "cat_01",
+      "termDe": "Brot",
+      "termEs": "Pan"
+    },
+    {
+      "id": "li_01_03",
+      "categoryId": "cat_01",
+      "termDe": "Käse",
+      "termEs": "Queso"
+    },
+    {
+      "id": "li_01_04",
+      "categoryId": "cat_01",
+      "termDe": "Eier",
+      "termEs": "Huevos"
+    },
+
+    {
+      "id": "li_02_01",
+      "categoryId": "cat_02",
+      "termDe": "Rechnung",
+      "termEs": "Cuenta"
+    },
+    {
+      "id": "li_02_02",
+      "categoryId": "cat_02",
+      "termDe": "Tisch",
+      "termEs": "Mesa"
+    },
+    {
+      "id": "li_02_03",
+      "categoryId": "cat_02",
+      "termDe": "Bestellung",
+      "termEs": "Pedido"
+    },
+    {
+      "id": "li_02_04",
+      "categoryId": "cat_02",
+      "termDe": "Getränk",
+      "termEs": "Bebida"
+    },
+
+    {
+      "id": "li_03_01",
+      "categoryId": "cat_03",
+      "termDe": "Ticket",
+      "termEs": "Billete"
+    },
+    {
+      "id": "li_03_02",
+      "categoryId": "cat_03",
+      "termDe": "Haltestelle",
+      "termEs": "Parada"
+    },
+    {
+      "id": "li_03_03",
+      "categoryId": "cat_03",
+      "termDe": "Fahrrad",
+      "termEs": "Bicicleta"
+    },
+    {
+      "id": "li_03_04",
+      "categoryId": "cat_03",
+      "termDe": "Zug",
+      "termEs": "Tren"
+    },
+
+    {
+      "id": "li_04_01",
+      "categoryId": "cat_04",
+      "termDe": "Wohnung",
+      "termEs": "Piso"
+    },
+    {
+      "id": "li_04_02",
+      "categoryId": "cat_04",
+      "termDe": "Miete",
+      "termEs": "Alquiler"
+    },
+    {
+      "id": "li_04_03",
+      "categoryId": "cat_04",
+      "termDe": "Schlüssel",
+      "termEs": "Llave"
+    },
+    {
+      "id": "li_04_04",
+      "categoryId": "cat_04",
+      "termDe": "Heizung",
+      "termEs": "Calefacción"
+    },
+
+    {
+      "id": "li_05_01",
+      "categoryId": "cat_05",
+      "termDe": "Meeting",
+      "termEs": "Reunión"
+    },
+    {
+      "id": "li_05_02",
+      "categoryId": "cat_05",
+      "termDe": "Kollege",
+      "termEs": "Compañero"
+    },
+    {
+      "id": "li_05_03",
+      "categoryId": "cat_05",
+      "termDe": "Projekt",
+      "termEs": "Proyecto"
+    },
+    {
+      "id": "li_05_04",
+      "categoryId": "cat_05",
+      "termDe": "Deadline",
+      "termEs": "Fecha límite"
+    }
+  ]
+}

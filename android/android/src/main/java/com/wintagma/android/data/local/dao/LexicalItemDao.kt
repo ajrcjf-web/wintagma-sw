@@ -1,6 +1,7 @@
 package com.wintagma.android.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import com.wintagma.android.data.local.entity.LexicalItem
 
@@ -12,4 +13,7 @@ interface LexicalItemDao {
 
     @Query("SELECT COUNT(*) FROM lexical_items WHERE categoryId = :categoryId")
     suspend fun countByCategoryId(categoryId: String): Int
+
+    @Insert
+    suspend fun insertAll(items: List<LexicalItem>)
 }
